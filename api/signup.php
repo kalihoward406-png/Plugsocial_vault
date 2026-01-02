@@ -1,7 +1,6 @@
 <?php
 session_start();
 include 'db_config.php';
-$conn->query("ALTER TABLE users ADD COLUMN balance DECIMAL(10,2) DEFAULT 0.00");
 
 $error = "";
 $success = "";
@@ -139,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
 
     <div class="footer-text">
-        Already have an account? <a href="login.php">Login</a>
+        Already have an account? <a href="/login">Login</a>
     </div>
 </div>
 
@@ -183,6 +182,7 @@ function togglePassword() {
 
 </body>
 </html>
+
 
 
 
