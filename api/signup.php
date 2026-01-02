@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+$conn->query("ALTER TABLE users ADD COLUMN balance DECIMAL(10,2) DEFAULT 0.00");
 
 $error = "";
 $success = "";
@@ -182,5 +183,6 @@ function togglePassword() {
 
 </body>
 </html>
+
 
 
