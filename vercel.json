@@ -1,15 +1,15 @@
 {
   "functions": {
-    "**/*.php": {
+    "api/*.php": {
       "runtime": "vercel-php@0.6.0"
     }
   },
   "routes": [
-    { "src": "/", "dest": "/login.php" },
-    { "src": "/dashboard", "dest": "/dashboard.php" },
-    { "src": "/verify", "dest": "/verify_payment.php" },
-    { "src": "/db_config.php", "status": 403 },
-    { "src": "/(.*).php", "dest": "/$1.php" },
+    { "src": "/", "dest": "/api/login.php" },
+    { "src": "/login", "dest": "/api/login.php" },
+    { "src": "/dashboard", "dest": "/api/dashboard.php" },
+    { "src": "/verify", "dest": "/api/verify_payment.php" },
+    { "src": "/(.*).php", "dest": "/api/$1.php" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }
