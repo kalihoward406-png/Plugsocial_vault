@@ -5,7 +5,11 @@
     }
   },
   "routes": [
-    { "src": "/(.*)", "dest": "/api/$1" }
+    { "src": "/", "dest": "/api/login.php" },
+    { "src": "/login", "dest": "/api/login.php" },
+    { "src": "/dashboard", "dest": "/api/dashboard.php" },
+    { "src": "/verify", "dest": "/api/verify_payment.php" },
+    { "src": "/(.*).php", "dest": "/api/$1.php" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
-
