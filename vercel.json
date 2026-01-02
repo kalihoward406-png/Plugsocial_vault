@@ -1,5 +1,8 @@
 {
   "functions": {
+    "api/**/*.php": {
+      "runtime": "vercel-php@0.6.0"
+    },
     "*.php": {
       "runtime": "vercel-php@0.6.0"
     }
@@ -9,6 +12,7 @@
     { "src": "/dashboard", "dest": "/dashboard.php" },
     { "src": "/verify", "dest": "/verify_payment.php" },
     { "src": "/db_config.php", "status": 403 },
-    { "src": "/(.*).php", "dest": "/$1.php" }
+    { "src": "/(.*).php", "dest": "/$1.php" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
