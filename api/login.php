@@ -246,7 +246,7 @@ if (isset($_POST['login_btn'])) {
     </form>
 
     <div class="footer-text">
-        Don't have an account? <a href="signup.php">Sign Up</a>
+        Don't have an account? <a href="/signup">Sign Up</a>
     </div>
 </div>
 
@@ -269,4 +269,5 @@ function togglePassword() {
 
 </body>
 </html>
+
 
