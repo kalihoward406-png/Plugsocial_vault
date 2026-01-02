@@ -1,8 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
-// Put this right after include 'db_config.php';
-$conn->query("ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'user'");
+
 $error = "";
 $success = "";
 
@@ -183,4 +182,5 @@ function togglePassword() {
 
 </body>
 </html>
+
 
