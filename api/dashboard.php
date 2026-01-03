@@ -1,4 +1,12 @@
 <?php
+// Force session to use a temporary folder Vercel can access
+ini_set('session.save_path', '/tmp');
+// Ensure the cookie is accessible across your whole site
+session_set_cookie_params([
+    'path' => '/',
+    'samesite' => 'Lax'
+]);
+session_start();
 ini_set('session.save_path', '/tmp');
 session_start();
 session_start();
@@ -373,6 +381,7 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
 
