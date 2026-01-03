@@ -1,4 +1,6 @@
 <?php
+ini_set('session.save_path', '/tmp');
+session_start();
 session_start();
 include 'db_config.php';
 include 'header.php';
@@ -371,4 +373,5 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
