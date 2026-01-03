@@ -7,6 +7,9 @@ session_set_cookie_params([
     'samesite' => 'Lax'
 ]);
 session_start();
+
+echo "Debug: Session ID is " . session_id() . "<br>";
+echo "Debug: User ID in session is " . ($_SESSION['user_id'] ?? 'EMPTY');
 ini_set('session.save_path', '/tmp');
 session_start();
 session_start();
@@ -381,6 +384,7 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
 
