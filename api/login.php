@@ -1,4 +1,12 @@
 <?php
+// Force session to use a temporary folder Vercel can access
+ini_set('session.save_path', '/tmp');
+// Ensure the cookie is accessible across your whole site
+session_set_cookie_params([
+    'path' => '/',
+    'samesite' => 'Lax'
+]);
+session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -256,6 +264,7 @@ function togglePassword() {
 
 </body>
 </html>
+
 
 
 
