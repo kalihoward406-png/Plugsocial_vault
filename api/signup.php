@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
-
+include 'header.php'; 
 $error = "";
 $success = "";
 
@@ -182,6 +182,7 @@ function togglePassword() {
 
 </body>
 </html>
+
 
 
 
