@@ -7,7 +7,7 @@ include 'header.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: /login");
     exit();
 }
 
@@ -255,7 +255,7 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
     <aside id="sidebar">
         <div class="brand">Vault</div>
         <nav>
-            <a href="dashboard.php" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/dashboard" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a>
             <a href="social_order.php" class="nav-link"><i class="fas fa-rocket"></i> Boost Account</a>
             <a href="receive_sms.php" class="nav-link"><i class="fas fa-envelope"></i> Receive SMS</a>
             <a href="fund_wallet.php" class="nav-link"><i class="fas fa-wallet"></i> Fund Wallet</a>
@@ -373,5 +373,6 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
