@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'header.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -370,3 +371,4 @@ function copyReferralLink() {
 
 </body>
 </html>
+
