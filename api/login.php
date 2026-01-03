@@ -29,22 +29,6 @@ if (isset($_POST['login_btn'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['username'] = $user['username'];
-
-            // --- STOP! DO NOT REDIRECT AUTOMATICALLY ---
-            echo "<div style='font-family:sans-serif; padding:20px; text-align:center;'>";
-            echo "<h1 style='color:green;'>LOGIN SUCCESSFUL!</h1>";
-            echo "<p><strong>Role Detected:</strong> " . $user['role'] . "</p>";
-            echo "<p>If you see this, the login logic works.</p>";
-            echo "<br>";
-            
-            if ($user['role'] === 'admin') {
-                echo "<a href='admin_dashboard.php' style='font-size:20px; background:blue; color:white; padding:10px;'>CLICK HERE TO GO TO ADMIN</a>";
-            } else {
-                echo "<a href='dashboard.php' style='font-size:20px; background:blue; color:white; padding:10px;'>CLICK HERE TO GO TO DASHBOARD</a>";
-            }
-            echo "</div>";
-            exit(); 
-
         } else {
             $error = "Incorrect Password.";
         }
@@ -269,5 +253,6 @@ function togglePassword() {
 
 </body>
 </html>
+
 
 
