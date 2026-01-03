@@ -12,6 +12,14 @@ if (isset($_POST['login_btn'])) {
     // Query supports Email OR Username
     $query = "SELECT * FROM users WHERE email = '$email' OR username = '$email' LIMIT 1";
     $result = mysqli_query($conn, $query);
+if ($login_is_successful) {
+    session_start();
+    $_SESSION['user_id'] = $user['id'];
+    
+    // REDIRECT MUST COME BEFORE ANY ECHO
+    header("Location: /dashboard"); 
+    exit(); 
+}
 
     if ($result && mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
@@ -245,6 +253,7 @@ function togglePassword() {
 
 </body>
 </html>
+
 
 
 
