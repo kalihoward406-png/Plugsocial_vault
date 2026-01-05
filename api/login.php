@@ -1,274 +1,96 @@
 <?php
-// Force session to use a temporary folder Vercel can access
-ini_set('session.save_path', '/tmp');
-// Ensure the cookie is accessible across your whole site
-session_set_cookie_params([
-    'path' => '/',
-    'samesite' => 'Lax'
-]);
-session_start();
+// 1. ENABLE ERROR REPORTING FOR DEBUGGING
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+// 2. CONFIGURE SESSION FOR VERCEL
+// This stores sessions in a temp folder so Vercel doesn't lose them immediately
+ini_set('session.save_path', '/tmp');
+session_set_cookie_params([
+    'path' => '/',
+    'secure' => true,     // Required for HTTPS (Vercel)
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 session_start();
-include 'db_config.php';
-include 'header.php';
 
-$error = "";
+// 3. CONNECT TO DATABASE
+require 'db_config.php'; // Ensure this file exists in api/ folder
 
-if (isset($_POST['login_btn'])) {
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
+// 4. HANDLE LOGIN REQUEST
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email']; 
     $password = $_POST['password'];
 
-    // Query supports Email OR Username
-    $query = "SELECT * FROM users WHERE email = '$email' OR username = '$email' LIMIT 1";
-    $result = mysqli_query($conn, $query);
-if ($login_is_successful) {
-    session_start();
-    $_SESSION['user_id'] = $user['id'];
-    
-    // REDIRECT MUST COME BEFORE ANY ECHO
-    header("Location: /dashboard"); 
-    exit(); 
-}
+    // Check if user exists
+    $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if ($result && mysqli_num_rows($result) > 0) {
-        $user = mysqli_fetch_assoc($result);
-
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        
+        // Verify Password
+        // Note: If you aren't using password_hash() in signup yet, 
+        // compare directly: if ($password === $user['password']) { ... }
         if (password_verify($password, $user['password'])) {
-            // SET SESSION VARIABLES
+            
+            // SAVE SESSION DATA
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['role'] = $user['role'];
+            
+            // FORCE REDIRECT USING JAVASCRIPT
+            // This bypasses PHP header issues
+            echo '<!DOCTYPE html>
+            <html>
+            <head>
+                <meta http-equiv="refresh" content="0;url=/dashboard">
+                <script type="text/javascript">
+                    window.location.href = "/dashboard";
+                </script>
+            </head>
+            <body>
+                <p>Login successful. Redirecting to dashboard...</p>
+            </body>
+            </html>';
+            exit();
         } else {
-            $error = "Incorrect Password.";
+            echo "<h3 style='color:red; text-align:center;'>Incorrect Password</h3>";
         }
     } else {
-        $error = "User not found.";
+        echo "<h3 style='color:red; text-align:center;'>User not found</h3>";
     }
+    $stmt->close();
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Login | Vault</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Vault</title>
     <style>
-        /* Dark Theme Background */
-        body {
-            background-color: #0f172a; 
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: #f8fafc;
-        }
-
-        .login-card {
-            background-color: #1e293b; /* Card Color */
-            border: 1px solid #334155;
-            width: 100%;
-            max-width: 420px;
-            padding: 40px 30px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-
-        /* Brand & Headers */
-        .brand-name {
-            color: #3b82f6; /* Bright Blue */
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            display: block;
-            letter-spacing: -1px;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0 0 5px 0;
-            color: white;
-        }
-        
-        .subtitle {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
-        }
-
-        /* Inputs */
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-            position: relative;
-        }
-
-        input[type="email"], input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 14px;
-            background-color: #0f172a; /* Dark Input Background */
-            border: 1px solid #334155;
-            border-radius: 8px;
-            font-size: 1rem;
-            color: white;
-            box-sizing: border-box;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #3b82f6; /* Blue Focus Border */
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        /* Eye Icon */
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            cursor: pointer;
-        }
-        .toggle-password:hover { color: #94a3b8; }
-
-        /* Remember Me & Forgot Password */
-        .options-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            margin-bottom: 25px;
-        }
-
-        .remember-label {
-            color: #94a3b8;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .forgot-link {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .forgot-link:hover { text-decoration: underline; }
-
-        /* Login Button */
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background-color: #2563eb; /* Blue Button */
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-login:hover { background-color: #1d4ed8; }
-
-        /* Footer */
-        .footer-text {
-            margin-top: 25px;
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-        .footer-text a {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        /* Error Message */
-        .error-msg {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            font-size: 0.9rem;
-        }
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .login-box { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #0070f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0051a2; }
     </style>
 </head>
 <body>
-
-<div class="login-card">
-    <span class="brand-name">Vault</span>
-    
-    <h2>Login to your account</h2>
-    <p class="subtitle">Welcome back! Please enter your details.</p>
-
-    <?php if($error): ?>
-        <div class="error-msg">
-            <i class="fas fa-exclamation-circle"></i> <?= $error; ?>
-        </div>
-    <?php endif; ?>
-
-    <form method="POST" action="">
-        <div class="form-group">
-            <input type="text" name="email" placeholder="Email or Username" required>
-        </div>
-
-        <div class="form-group">
-            <div style="position:relative;">
-                <input type="password" name="password" id="password" placeholder="Password" required>
-                <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
-            </div>
-        </div>
-
-        <div class="options-row">
-            <label class="remember-label">
-                <input type="checkbox" name="remember"> Remember Me
-            </label>
-            <a href="forgot_password.php" class="forgot-link">Forgot password?</a>
-        </div>
-
-       <button type="submit" name="login_btn" class="btn-login">Login</button>
-    </form>
-
-    <div class="footer-text">
-        Don't have an account? <a href="/signup">Sign Up</a>
+    <div class="login-box">
+        <h2 style="text-align:center;">Login</h2>
+        <form method="POST" action="/login"> 
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Log In</button>
+        </form>
+        <p style="text-align:center; margin-top:15px;">
+            Don't have an account? <a href="/signup">Sign Up</a>
+        </p>
     </div>
-</div>
-
-<script>
-function togglePassword() {
-    const passwordInput = document.getElementById('password');
-    const icon = document.querySelector('.toggle-password');
-    
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
-</script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
