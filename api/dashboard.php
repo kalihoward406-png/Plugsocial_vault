@@ -1,36 +1,41 @@
 <?php
-// Force session to use a temporary folder Vercel can access
+// 1. SESSION CONFIGURATION (MUST BE FIRST)
+ini_set('display_errors', 1);
 ini_set('session.save_path', '/tmp');
-// Ensure the cookie is accessible across your whole site
 session_set_cookie_params([
     'path' => '/',
+    'secure' => true,
+    'httponly' => true,
     'samesite' => 'Lax'
 ]);
-session_start();
 
-echo "Debug: Session ID is " . session_id() . "<br>";
-echo "Debug: User ID in session is " . ($_SESSION['user_id'] ?? 'EMPTY');
-ini_set('session.save_path', '/tmp');
-session_start();
-session_start();
-include 'db_config.php';
-include 'header.php';
+// 2. START SESSION (ONLY ONCE)
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-// 1. Check if user is logged in
+// 3. CHECK LOGIN (BEFORE ANY HTML IS SHOWN)
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /login");
+    // If not logged in, force redirect using JavaScript
+    echo "<script>window.location.href='/login';</script>";
     exit();
 }
 
+// 4. INCLUDE DB & FETCH DATA
+require 'db_config.php';
 $user_id = $_SESSION['user_id'];
 
-// 2. Fetch User Data
-$sql = "SELECT username, email, balance, role FROM users WHERE id = '$user_id'";
-$result = mysqli_query($conn, $sql);
-$user = mysqli_fetch_assoc($result);
+// Fetch latest data from DB to ensure balance is accurate
+$stmt = $conn->prepare("SELECT username, email, balance, role FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
 
+// Fallback values
 $username = $user['username'] ?? 'User';
 $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
+$user_role = $user['role'] ?? 'user';
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +52,7 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
             --bg-dark: #0b0f19;
             --bg-card: #1e293b;
             --primary: #3b82f6;
-            --accent: #22c55e; /* Green for Welcome */
+            --accent: #22c55e;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
@@ -63,10 +68,7 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
         }
 
         /* --- LAYOUT WRAPPER --- */
-        .dashboard-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
+        .dashboard-wrapper { display: flex; min-height: 100vh; }
 
         /* --- SIDEBAR --- */
         #sidebar {
@@ -175,7 +177,7 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
             font-weight: 600;
         }
 
-        /* --- GRID SYSTEM (Fixed Clustering) --- */
+        /* --- GRID SYSTEM --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -206,51 +208,40 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
             transition: 0.2s;
         }
 
-       /* Fix for Clustering: Grid Layout */
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-/* WhatsApp Button Style */
-.btn-whatsapp {
-    display: inline-block;
-    margin-top: 10px;
-    background: #22c55e;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
-}
+        /* WhatsApp Button */
+        .btn-whatsapp {
+            display: inline-block;
+            margin-top: 10px;
+            background: #22c55e;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-whatsapp:hover { background: #16a34a; }
 
-.btn-whatsapp:hover {
-    background: #16a34a;
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-}
-
-/* Referral Card interactivity */
-.referral-card {
-    text-align: center;
-    cursor: pointer;
-    border: 1px dashed #3b82f6;
-    transition: transform 0.2s;
-}
-
-.referral-card:hover {
-    transform: translateY(-5px);
-    background: rgba(59, 130, 246, 0.05);
-}
-
-.copy-badge {
-    margin-top: 10px;
-    font-size: 0.75rem;
-    color: #3b82f6;
-    font-weight: 600;
-}
+        /* Referral Card */
+        .referral-card {
+            text-align: center;
+            cursor: pointer;
+            border: 1px dashed #3b82f6;
+            transition: transform 0.2s;
+        }
+        .referral-card:hover {
+            transform: translateY(-5px);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .copy-badge { margin-top: 10px; font-size: 0.75rem; color: #3b82f6; font-weight: 600; }
 
         @media (max-width: 768px) {
             .main-content { margin-left: 0; padding: 15px; }
@@ -285,13 +276,18 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
                 <a href="messages.php" class="icon-btn">
                     <i class="fas fa-envelope"></i>
                     <?php
-                    $m_q = mysqli_query($conn, "SELECT COUNT(*) as t FROM broadcasts");
-                    $m_d = mysqli_fetch_assoc($m_q);
-                    if ($m_d['t'] > 0) echo '<span class="badge">'.$m_d['t'].'</span>';
+                    // Check messages safely
+                    if(isset($conn)){
+                        $m_q = mysqli_query($conn, "SELECT COUNT(*) as t FROM broadcasts");
+                        if($m_q){
+                            $m_d = mysqli_fetch_assoc($m_q);
+                            if ($m_d['t'] > 0) echo '<span class="badge">'.$m_d['t'].'</span>';
+                        }
+                    }
                     ?>
                 </a>
                 <a href="logout.php" class="btn-logout">Logout</a>
-                <?php if ($user['role'] === 'admin'): ?>
+                <?php if ($user_role === 'admin'): ?>
                     <a href="admin_dashboard.php" class="icon-btn" style="background:#3b82f6;">Admin</a>
                 <?php endif; ?>
             </div>
@@ -315,24 +311,22 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
             </div>
         </div>
 
-<div class="info-grid">
-    <div class="card referral-card" onclick="copyReferralLink()">
-        <i class="fas fa-link" style="font-size: 2rem; color: #3b82f6; margin-bottom: 15px;"></i>
-        <h3>Referral Link</h3>
-        <p style="color: #94a3b8; font-size: 0.9rem;">Earn 5% on every deposit your referrals make.</p>
-        
-        <input type="text" value="https://yourwebsite.com/signup.php?ref=<?php echo $_SESSION['username']; ?>" id="refLink" style="display:none;">
-        
-        <div class="copy-badge">Click to copy</div>
-    </div>
+        <div class="info-grid">
+            <div class="card referral-card" onclick="copyReferralLink()">
+                <i class="fas fa-link" style="font-size: 2rem; color: #3b82f6; margin-bottom: 15px;"></i>
+                <h3>Referral Link</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Earn 5% on every deposit your referrals make.</p>
+                <input type="text" value="https://yourwebsite.com/signup.php?ref=<?php echo $username; ?>" id="refLink" style="display:none;">
+                <div class="copy-badge">Click to copy</div>
+            </div>
 
-    <div class="card whatsapp-card">
-        <i class="fab fa-whatsapp" style="font-size: 2.5rem; color: #22c55e; margin-bottom: 15px;"></i>
-        <h3>Join WhatsApp Group</h3>
-        <p style="color: #94a3b8; font-size: 0.9rem;">Join our community for the latest updates and support.</p>
-        <a href="https://chat.whatsapp.com/li41dwblAKC7yfaa93Jcm7?mode=wwt" target="_blank" class="btn-whatsapp">Join Group &rarr;</a>
-    </div>
-</div>
+            <div class="card whatsapp-card">
+                <i class="fab fa-whatsapp" style="font-size: 2.5rem; color: #22c55e; margin-bottom: 15px;"></i>
+                <h3>Join WhatsApp Group</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Join our community for the latest updates and support.</p>
+                <a href="https://chat.whatsapp.com/li41dwblAKC7yfaa93Jcm7?mode=wwt" target="_blank" class="btn-whatsapp">Join Group &rarr;</a>
+            </div>
+        </div>
 
         <div class="card">
             <h3 style="margin-top:0;">Recent Transactions</h3>
@@ -357,6 +351,7 @@ $clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
 </div>
 
 <script>
+// Fixed Sidebar Toggle Function
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
@@ -364,6 +359,8 @@ function toggleSidebar() {
     mainContent.classList.toggle('expanded');
     // For mobile
     sidebar.classList.toggle('active');
+}
+
 function copyReferralLink() {
     var copyText = document.getElementById("refLink");
     
@@ -384,9 +381,3 @@ function copyReferralLink() {
 
 </body>
 </html>
-
-
-
-
-
-
