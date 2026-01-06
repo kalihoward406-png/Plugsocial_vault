@@ -13,7 +13,7 @@ $total_balance = $bal_row['total_bal'] ?? 0; // Use 0 if no users exist
 
 // Check if logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: /login");
     exit();
 }
 
@@ -23,7 +23,7 @@ $check = mysqli_query($conn, "SELECT role FROM users WHERE id = '$uid'");
 $userData = mysqli_fetch_assoc($check);
 
 if ($userData['role'] !== 'admin') {
-    header("Location: dashboard.php?error=not_admin");
+    header("Location: /dashboard?error=not_admin");
     exit();
 }
 ?>
@@ -134,13 +134,13 @@ if ($userData['role'] !== 'admin') {
 
 <div class="sidebar">
     <h2>Vault Admin</h2>
-    <a href="admin_dashboard.php" class="nav-link active"><i class="fas fa-chart-line"></i> Overview</a>
-    <a href="admin_users.php" class="nav-link"><i class="fas fa-users"></i> User Management</a>
-    <a href="admin_transactions.php" class="nav-link"><i class="fas fa-history"></i> Transactions</a>
-    <a href="admin_pricing.php" class="nav-link"><i class="fas fa-tag"></i> Pricing</a>
-    <a href="admin_broadcast.php" class="nav-link"><i class="fas fa-bullhorn"></i> Broadcast</a>
+    <a href="/admin_dashboard" class="nav-link active"><i class="fas fa-chart-line"></i> Overview</a>
+    <a href="/admin_users" class="nav-link"><i class="fas fa-users"></i> User Management</a>
+    <a href="/admin_transactions" class="nav-link"><i class="fas fa-history"></i> Transactions</a>
+    <a href="/admin_pricing" class="nav-link"><i class="fas fa-tag"></i> Pricing</a>
+    <a href="/admin_broadcast" class="nav-link"><i class="fas fa-bullhorn"></i> Broadcast</a>
     
-    <a href="dashboard.php" class="btn-user-view"><i class="fas fa-user"></i> User View</a>
+    <a href="/dashboard" class="btn-user-view"><i class="fas fa-user"></i> User View</a>
 </div>
 
 <div class="main-content">
@@ -158,3 +158,4 @@ if ($userData['role'] !== 'admin') {
         <div class="stat-card">
             <h3>5Sim API Balance</h3>
             <span class="value" style="color: #eab308;">0 RUB</span>
+
