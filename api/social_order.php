@@ -1,6 +1,8 @@
 <?php
 session_start();
+include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
 include 'db_config.php';
+include 'header.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -245,3 +247,4 @@ function calculateCost() {
 </body>
 
 </html>
+
