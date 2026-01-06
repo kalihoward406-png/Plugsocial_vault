@@ -272,10 +272,10 @@ if ($check_table && mysqli_num_rows($check_table) > 0) {
         <div class="brand">Vault</div>
         <nav>
             <a href="/dashboard" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="social_order.php" class="nav-link"><i class="fas fa-rocket"></i> Boost Account</a>
-            <a href="receive_sms.php" class="nav-link"><i class="fas fa-envelope"></i> Receive SMS</a>
-            <a href="fund_wallet.php" class="nav-link"><i class="fas fa-wallet"></i> Fund Wallet</a>
-            <a href="settings.php" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+            <a href="/social_order" class="nav-link"><i class="fas fa-rocket"></i> Boost Account</a>
+            <a href="/receive_sms" class="nav-link"><i class="fas fa-envelope"></i> Receive SMS</a>
+            <a href="/fund_wallet" class="nav-link"><i class="fas fa-wallet"></i> Fund Wallet</a>
+            <a href="/settings" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
         </nav>
     </aside>
 
@@ -287,13 +287,13 @@ if ($check_table && mysqli_num_rows($check_table) > 0) {
             </div>
             
             <div class="bar-right">
-                <a href="messages.php" class="icon-btn">
+                <a href="/messages" class="icon-btn">
                     <i class="fas fa-envelope"></i>
                     <?php if ($msg_count > 0) echo '<span class="badge">'.$msg_count.'</span>'; ?>
                 </a>
-                <a href="logout.php" class="btn-logout">Logout</a>
+                <a href="/logout" class="btn-logout">Logout</a>
                 <?php if ($user['role'] === 'admin'): ?>
-                    <a href="admin_dashboard.php" class="icon-btn" style="background:#3b82f6;">Admin</a>
+                    <a href="/admin_dashboard" class="icon-btn" style="background:#3b82f6;">Admin</a>
                 <?php endif; ?>
             </div>
         </header>
@@ -302,7 +302,7 @@ if ($check_table && mysqli_num_rows($check_table) > 0) {
             <div class="card">
                 <span class="card-title">Current Balance</span>
                 <span class="card-value">₦<?php echo number_format($clean_balance, 2); ?></span>
-                <a href="fund_wallet.php" class="btn-card">+ Fund Wallet</a>
+                <a href="/fund_wallet" class="btn-card">+ Fund Wallet</a>
             </div>
             <div class="card">
                 <span class="card-title">Purchased Numbers</span>
@@ -387,3 +387,4 @@ function copyReferralLink() {
 
 </body>
 </html>
+
