@@ -5,7 +5,9 @@ ini_set('session.save_path', '/tmp');
 session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
 
-include 'db_config.php'; // Ensure this file exists!
+include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
+include 'db_config.php';
+include 'header.php';
 
 $error = "";
 
@@ -163,5 +165,6 @@ if (password_verify($password, $user['password'])) {
 
 </body>
 </html>
+
 
 
