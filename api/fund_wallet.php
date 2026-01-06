@@ -1,6 +1,8 @@
 <?php
 session_start();
+include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
 include 'db_config.php';
+include 'header.php';
 
 // Check Login
 if (!isset($_SESSION['user_id'])) {
@@ -285,3 +287,4 @@ $f_query = mysqli_query($conn, "SELECT * FROM transactions WHERE user_id = '$use
 </body>
 
 </html>
+
