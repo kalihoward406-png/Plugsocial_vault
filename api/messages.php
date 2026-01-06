@@ -30,6 +30,7 @@ if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit(); }
     }
     ?>
     
-    <a href="dashboard.php" style="color:#3b82f6; text-decoration:none;">← Back to Dashboard</a>
+    <a href="/dashboard" style="color:#3b82f6; text-decoration:none;">← Back to Dashboard</a>
 </body>
 </html>
+
