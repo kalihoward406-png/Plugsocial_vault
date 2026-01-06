@@ -135,9 +135,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div class="sidebar">
     <span class="brand">Vault</span>
-    <a href="dashboard.php" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
-    <a href="social_order.php" class="nav-link active"><i class="fas fa-rocket"></i> Boost Account</a>
-    <a href="fund_wallet.php" class="nav-link"><i class="fas fa-wallet"></i> Fund Wallet</a>
+    <a href="/dashboard" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="/social_order" class="nav-link"><i class="fas fa-rocket"></i> Boost Account</a>
+    <a href="/receive_sms" class="nav-link"><i class="fas fa-envelope"></i> Receive SMS</a>
+    <a href="/fund_wallet" class="nav-link"><i class="fas fa-wallet"></i> Fund Wallet</a>
+    <a href="/settings" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
 </div>
 
 <div class="main-content">
@@ -241,4 +243,5 @@ function calculateCost() {
 </script>
 
 </body>
+
 </html>
