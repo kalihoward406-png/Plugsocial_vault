@@ -1,6 +1,8 @@
 <?php
 session_start();
+include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
 include 'db_config.php';
+include 'header.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
@@ -77,3 +79,4 @@ if (isset($_POST['change_password'])) {
 
 </body>
 </html>
+
