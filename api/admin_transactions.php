@@ -8,7 +8,7 @@ $u_check = mysqli_query($conn, "SELECT role FROM users WHERE id = '$user_id'");
 $admin_data = mysqli_fetch_assoc($u_check);
 
 if (!$admin_data || $admin_data['role'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: /dashboard");
     exit();
 }
 
@@ -68,10 +68,10 @@ $result = mysqli_query($conn, $query);
 
 <div class="sidebar">
     <h2>Vault Admin</h2>
-    <a href="admin_dashboard.php" class="nav-item"><i class="fas fa-th-large"></i> Overview</a>
-    <a href="admin_users.php" class="nav-item"><i class="fas fa-users"></i> Users</a>
-    <a href="admin_transactions.php" class="nav-item active"><i class="fas fa-list-ul"></i> Master Logs</a>
-    <a href="admin_broadcast.php" class="nav-item"><i class="fas fa-bullhorn"></i> Broadcast</a>
+    <a href="/admin_dashboard" class="nav-item"><i class="fas fa-th-large"></i> Overview</a>
+    <a href="/admin_users" class="nav-item"><i class="fas fa-users"></i> Users</a>
+    <a href="/admin_transactions" class="nav-item active"><i class="fas fa-list-ul"></i> Master Logs</a>
+    <a href="/admin_broadcast" class="nav-item"><i class="fas fa-bullhorn"></i> Broadcast</a>
 </div>
 
 <div class="main-content">
@@ -121,4 +121,5 @@ $result = mysqli_query($conn, $query);
 </div>
 
 </body>
+
 </html>
