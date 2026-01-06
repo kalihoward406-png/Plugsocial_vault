@@ -75,7 +75,7 @@ if ($check_table && mysqli_num_rows($check_table) > 0) {
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
-            --sidebar-width: 250px;
+            --sidebar-width: 220px;
         }
 
         body {
@@ -387,4 +387,5 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
