@@ -1,43 +1,37 @@
 <?php
-// 1. SESSION CONFIGURATION (MUST BE FIRST)
+// 1. SETTINGS
 ini_set('display_errors', 1);
 ini_set('session.save_path', '/tmp');
-session_set_cookie_params([
-    'path' => '/',
-    'secure' => true,
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
+session_start();
 
-// 2. START SESSION (ONLY ONCE)
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+// 2. CHECK LOGIN (Session OR Cookie)
+$user_id = null;
+
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+} elseif (isset($_COOKIE['auth_user_id'])) {
+    // Session died? Restore from Cookie!
+    $user_id = $_COOKIE['auth_user_id'];
+    $_SESSION['user_id'] = $user_id; // Restore session
 }
 
-// 3. CHECK LOGIN (BEFORE ANY HTML IS SHOWN)
-if (!isset($_SESSION['user_id'])) {
-    // If not logged in, force redirect using JavaScript
-    echo "<script>window.location.href='/login';</script>";
+// 3. IF STILL NO USER, KICK OUT
+if (!$user_id) {
+    header("Location: /login");
     exit();
 }
 
-// 4. INCLUDE DB & FETCH DATA
 require 'db_config.php';
-$user_id = $_SESSION['user_id'];
 
-// Fetch latest data from DB to ensure balance is accurate
+// 4. FETCH DATA
 $stmt = $conn->prepare("SELECT username, email, balance, role FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
-// Fallback values
 $username = $user['username'] ?? 'User';
-$clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
-$user_role = $user['role'] ?? 'user';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -381,3 +375,4 @@ function copyReferralLink() {
 
 </body>
 </html>
+
