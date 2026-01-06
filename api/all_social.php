@@ -1,9 +1,9 @@
 <?php
+// Start session and include your database if needed
+session_start();
 include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
 include 'db_config.php';
 include 'header.php';
-// Start session and include your database if needed
-session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,4 +99,5 @@ session_start();
 
 </body>
 </html>
+
 
