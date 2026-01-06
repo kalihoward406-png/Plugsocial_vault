@@ -1,37 +1,62 @@
 <?php
-// 1. SETTINGS
+// 1. SETUP SESSION & ERROR REPORTING
 ini_set('display_errors', 1);
 ini_set('session.save_path', '/tmp');
+session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
 
-// 2. CHECK LOGIN (Session OR Cookie)
+// 2. CHECK LOGIN (SESSION OR COOKIE BACKUP)
 $user_id = null;
 
+// Check standard session
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
-} elseif (isset($_COOKIE['auth_user_id'])) {
-    // Session died? Restore from Cookie!
+} 
+// Check backup cookie (Fix for Vercel dropping sessions)
+elseif (isset($_COOKIE['auth_user_id'])) {
     $user_id = $_COOKIE['auth_user_id'];
     $_SESSION['user_id'] = $user_id; // Restore session
 }
 
-// 3. IF STILL NO USER, KICK OUT
+// 3. IF NO USER FOUND, REDIRECT TO LOGIN
 if (!$user_id) {
-    header("Location: /login");
+    // Javascript redirect is safer on Vercel than header()
+    echo "<script>window.location.href='/login';</script>";
     exit();
 }
 
-require 'db_config.php';
+include 'db_config.php';
+include 'header.php'; // Ensure this file exists and doesn't output bad HTML
 
-// 4. FETCH DATA
+// 4. FETCH USER DATA
 $stmt = $conn->prepare("SELECT username, email, balance, role FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
+if (!$user) {
+    // User ID exists in cookie but not DB? Force logout.
+    header("Location: /logout"); 
+    exit();
+}
+
 $username = $user['username'] ?? 'User';
+$clean_balance = (float)str_replace(',', '', $user['balance'] ?? 0);
+
+// 5. SAFELY CHECK FOR MESSAGES (Fixes Fatal Error)
+$msg_count = 0;
+// We wrap this in a try-catch or simple check to prevent crashing if table is missing
+$check_table = mysqli_query($conn, "SHOW TABLES LIKE 'broadcasts'");
+if ($check_table && mysqli_num_rows($check_table) > 0) {
+    $m_q = mysqli_query($conn, "SELECT COUNT(*) as t FROM broadcasts");
+    if ($m_q) {
+        $m_d = mysqli_fetch_assoc($m_q);
+        $msg_count = $m_d['t'];
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,10 +86,9 @@ $username = $user['username'] ?? 'User';
             overflow-x: hidden;
         }
 
-        /* --- LAYOUT WRAPPER --- */
         .dashboard-wrapper { display: flex; min-height: 100vh; }
 
-        /* --- SIDEBAR --- */
+        /* SIDEBAR */
         #sidebar {
             width: var(--sidebar-width);
             background-color: #111827;
@@ -79,6 +103,12 @@ $username = $user['username'] ?? 'User';
         }
 
         #sidebar.hidden { margin-left: calc(-1 * var(--sidebar-width)); }
+        
+        /* Mobile Sidebar state */
+        @media (max-width: 768px) {
+            #sidebar { margin-left: calc(-1 * var(--sidebar-width)); }
+            #sidebar.active { margin-left: 0; }
+        }
 
         .brand {
             font-size: 1.8rem;
@@ -107,7 +137,7 @@ $username = $user['username'] ?? 'User';
 
         .nav-link i { width: 25px; margin-right: 10px; }
 
-        /* --- MAIN CONTENT --- */
+        /* MAIN CONTENT */
         .main-content {
             margin-left: var(--sidebar-width);
             flex: 1;
@@ -115,10 +145,14 @@ $username = $user['username'] ?? 'User';
             transition: 0.3s ease;
             width: 100%;
         }
+        
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 15px; }
+        }
 
         .main-content.expanded { margin-left: 0; }
 
-        /* --- HEADER / TOP BAR --- */
+        /* TOP BAR */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -139,7 +173,6 @@ $username = $user['username'] ?? 'User';
 
         .bar-right { display: flex; align-items: center; gap: 15px; }
 
-        /* Buttons & Icons */
         .icon-btn {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -171,7 +204,7 @@ $username = $user['username'] ?? 'User';
             font-weight: 600;
         }
 
-        /* --- GRID SYSTEM --- */
+        /* GRID */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -202,7 +235,6 @@ $username = $user['username'] ?? 'User';
             transition: 0.2s;
         }
 
-        /* Info Grid */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -210,7 +242,6 @@ $username = $user['username'] ?? 'User';
             margin-bottom: 30px;
         }
 
-        /* WhatsApp Button */
         .btn-whatsapp {
             display: inline-block;
             margin-top: 10px;
@@ -224,25 +255,14 @@ $username = $user['username'] ?? 'User';
         }
         .btn-whatsapp:hover { background: #16a34a; }
 
-        /* Referral Card */
         .referral-card {
             text-align: center;
             cursor: pointer;
             border: 1px dashed #3b82f6;
             transition: transform 0.2s;
         }
-        .referral-card:hover {
-            transform: translateY(-5px);
-            background: rgba(59, 130, 246, 0.05);
-        }
+        .referral-card:hover { transform: translateY(-5px); background: rgba(59, 130, 246, 0.05); }
         .copy-badge { margin-top: 10px; font-size: 0.75rem; color: #3b82f6; font-weight: 600; }
-
-        @media (max-width: 768px) {
-            .main-content { margin-left: 0; padding: 15px; }
-            #sidebar { margin-left: calc(-1 * var(--sidebar-width)); }
-            #sidebar.active { margin-left: 0; }
-            .info-grid { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -269,19 +289,10 @@ $username = $user['username'] ?? 'User';
             <div class="bar-right">
                 <a href="messages.php" class="icon-btn">
                     <i class="fas fa-envelope"></i>
-                    <?php
-                    // Check messages safely
-                    if(isset($conn)){
-                        $m_q = mysqli_query($conn, "SELECT COUNT(*) as t FROM broadcasts");
-                        if($m_q){
-                            $m_d = mysqli_fetch_assoc($m_q);
-                            if ($m_d['t'] > 0) echo '<span class="badge">'.$m_d['t'].'</span>';
-                        }
-                    }
-                    ?>
+                    <?php if ($msg_count > 0) echo '<span class="badge">'.$msg_count.'</span>'; ?>
                 </a>
                 <a href="logout.php" class="btn-logout">Logout</a>
-                <?php if ($user_role === 'admin'): ?>
+                <?php if ($user['role'] === 'admin'): ?>
                     <a href="admin_dashboard.php" class="icon-btn" style="background:#3b82f6;">Admin</a>
                 <?php endif; ?>
             </div>
@@ -345,26 +356,27 @@ $username = $user['username'] ?? 'User';
 </div>
 
 <script>
-// Fixed Sidebar Toggle Function
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
+    
+    // Toggle for desktop
     sidebar.classList.toggle('hidden');
     mainContent.classList.toggle('expanded');
-    // For mobile
+    
+    // Toggle for mobile
     sidebar.classList.toggle('active');
 }
 
 function copyReferralLink() {
     var copyText = document.getElementById("refLink");
     
-    // Create a temporary element to perform the copy
     var tempInput = document.createElement("input");
     tempInput.value = copyText.value;
     document.body.appendChild(tempInput);
     
     tempInput.select();
-    tempInput.setSelectionRange(0, 99999); // Mobile support
+    tempInput.setSelectionRange(0, 99999);
     document.execCommand("copy");
     
     document.body.removeChild(tempInput);
@@ -375,4 +387,3 @@ function copyReferralLink() {
 
 </body>
 </html>
-
