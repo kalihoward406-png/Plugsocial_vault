@@ -1,6 +1,8 @@
 <?php
 session_start();
+include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
 include 'db_config.php';
+include 'header.php';
 
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit(); }
 ?>
@@ -33,4 +35,5 @@ if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit(); }
     <a href="/dashboard" style="color:#3b82f6; text-decoration:none;">← Back to Dashboard</a>
 </body>
 </html>
+
 
