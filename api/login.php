@@ -20,33 +20,23 @@ if (isset($_POST['login_btn'])) {
     if ($result && mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
 
-        if (password_verify($password, $user['password'])) {
-            
-            // --- THE FIX: SET A COOKIE + SESSION ---
-            // 1. Standard Session
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            
-            // 2. Backup Cookie (Lasts 24 hours) - This saves you on Vercel
-            setcookie("auth_user_id", $user['id'], time() + 86400, "/");
+// Inside your login.php where password_verify is successful:
+if (password_verify($password, $user['password'])) {
+    session_start();
+    $_SESSION['user_id'] = $user['id'];
+    
+    // Set a cookie that lasts 30 days and is available to the WHOLE site
+    // The 'path' => '/' is the most important part!
+    setcookie("auth_user_id", $user['id'], [
+        'expires' => time() + (86400 * 30),
+        'path' => '/',
+        'secure' => true,
+        'httponly' => false, // Set to false temporarily for debugging
+        'samesite' => 'Lax'
+    ]);
 
-            // --- STOP & SHOW SUCCESS (MANUAL CLICK) ---
-            // We stop here to PROVE login worked. Click the link to go to dashboard.
-            echo '<!DOCTYPE html>
-            <html>
-            <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>body{font-family:sans-serif;background:#0f172a;color:white;text-align:center;padding:50px;}</style>
-            </head>
-            <body>
-                <h1 style="color:#22c55e;">Login Successful!</h1>
-                <p>Welcome, ' . $user['username'] . '</p>
-                <br>
-                <a href="/dashboard" style="background:#3b82f6; color:white; padding:15px 30px; text-decoration:none; border-radius:8px; font-size:18px;">Click to Enter Dashboard</a>
-            </body>
-            </html>';
-            exit();
-
+    echo "<script>window.location.href='/dashboard';</script>";
+    exit();
         } else {
             $error = "Incorrect Password.";
         }
@@ -173,4 +163,5 @@ if (isset($_POST['login_btn'])) {
 
 </body>
 </html>
+
 
