@@ -1,6 +1,8 @@
 <?php
 session_start();
+include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
 include 'db_config.php';
+include 'header.php';
 
 // 1. Check if user_id exists in session
 if (!isset($_SESSION['user_id'])) {
@@ -89,3 +91,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['message'])) {
 
 </body>
 </html>
+
