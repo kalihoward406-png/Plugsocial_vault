@@ -26,6 +26,7 @@ if (!$user_id) {
 }
 
 include 'db_config.php';
+include 'auth_session.php';
 include 'header.php'; // Ensure this file exists and doesn't output bad HTML
 
 // 4. FETCH USER DATA
@@ -387,5 +388,6 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
