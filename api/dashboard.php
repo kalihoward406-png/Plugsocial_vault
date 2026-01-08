@@ -26,8 +26,8 @@ if (!$user_id) {
 }
 
 // Use __DIR__ to tell PHP "Look in this current folder"
-include_once __DIR__ . '/auth_session.php'; 
-include_once __DIR__ . '/db_config.php';
+include 'auth_session.php'; 
+include 'db_config.php';
 // ... Rest of your code (fetching user data) starts here ...
 $stmt = $conn->prepare("SELECT username, email, balance, role FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
