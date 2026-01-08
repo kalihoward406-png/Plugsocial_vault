@@ -24,21 +24,24 @@ if (isset($_POST['login_btn'])) {
 
 // Inside your login.php where password_verify is successful:
 if (password_verify($password, $user['password'])) {
-    session_start();
-    $_SESSION['user_id'] = $user['id'];
-    
-    // Set a cookie that lasts 30 days and is available to the WHOLE site
-    // The 'path' => '/' is the most important part!
-    setcookie("auth_user_id", $user['id'], [
-        'expires' => time() + (86400 * 30),
-        'path' => '/',
-        'secure' => true,
-        'httponly' => false, // Set to false temporarily for debugging
-        'samesite' => 'Lax'
-    ]);
+    // 1. Start Session (Just in case)
+session_start();
+$_SESSION['user_id'] = $row['id'];
 
-    echo "<script>window.location.href='/dashboard';</script>";
-    exit();
+// 2. SET THE MASTER COOKIE (Crucial for Vercel)
+// The "/" at the end is the most important part. It makes the cookie global.
+setcookie("auth_user_id", $row['id'], [
+    'expires' => time() + (86400 * 30), // 30 days
+    'path' => '/', 
+    'domain' => '', // Empty means current domain
+    'secure' => true, // Required for Vercel (HTTPS)
+    'httponly' => false,
+    'samesite' => 'Lax'
+]);
+
+// 3. Redirect to Dashboard
+echo "<script>window.location.href='/dashboard';</script>";
+exit();
         } else {
             $error = "Incorrect Password.";
         }
@@ -165,6 +168,7 @@ if (password_verify($password, $user['password'])) {
 
 </body>
 </html>
+
 
 
 
