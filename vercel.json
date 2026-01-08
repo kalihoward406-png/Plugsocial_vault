@@ -1,19 +1,16 @@
 {
+  "version": 2,
   "functions": {
-    "api/*.php": { "runtime": "vercel-php@0.7.4" }
+    "api/*.php": {
+      "runtime": "vercel-php@0.7.4"
+    }
   },
   "routes": [
-   { "src": "/", "dest": "/api/login.php" },
+    { "src": "/(css|js|images)/(.*)", "dest": "/api/$1/$2" },
+    { "src": "/", "dest": "/api/login.php" },
     { "src": "/login", "dest": "/api/login.php" },
-    { "src": "/signup", "dest": "/api/signup.php" },
     { "src": "/dashboard", "dest": "/api/dashboard.php" },
-    { "src": "/admin_dashboard", "dest": "/api/admin_dashboard.php" },
-    { "src": "/fund_wallet", "dest": "/api/fund_wallet.php" },
     { "src": "/receive_sms", "dest": "/api/receive_sms.php" },
-    { "src": "/social_order", "dest": "/api/social_order.php" },
-    { "src": "/settings", "dest": "/api/settings.php" },
-    { "src": "/logout", "dest": "/api/logout.php" },
-    { "src": "/(css|js|images)/(.*)", "dest": "/api/$1/$2" }
+    { "src": "/(.*)", "dest": "/api/$1.php" }
   ]
 }
-
