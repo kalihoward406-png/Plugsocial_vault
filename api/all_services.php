@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'auth_session.php';
 
 if (!isset($_SESSION['user'])) {
     header("Location: auth.php");
@@ -106,4 +107,5 @@ if (!isset($_SESSION['user'])) {
 </div>
 
 </body>
+
 </html>
