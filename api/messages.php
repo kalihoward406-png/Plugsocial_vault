@@ -2,6 +2,7 @@
 session_start();
 include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
 include 'db_config.php';
+include 'header.php';
 
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit(); }
 ?>
