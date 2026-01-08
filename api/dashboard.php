@@ -25,13 +25,9 @@ if (!$user_id) {
     exit();
 }
 
-// Just include the fixer file. It handles everything.
-include 'api/auth_session.php'; 
-// OR include 'auth_session.php'; depending on where the file is located relative to this one.
-
-include 'db_config.php';
-// Remove include 'header.php'; if it causes layout issues, otherwise keep it.
-
+// Use __DIR__ to tell PHP "Look in this current folder"
+include_once __DIR__ . '/auth_session.php'; 
+include_once __DIR__ . '/db_config.php';
 // ... Rest of your code (fetching user data) starts here ...
 $stmt = $conn->prepare("SELECT username, email, balance, role FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
@@ -391,6 +387,7 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
 
