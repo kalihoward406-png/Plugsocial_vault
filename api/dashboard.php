@@ -25,12 +25,18 @@ if (!$user_id) {
     exit();
 }
 
-include 'db_config.php';
-include 'auth_session.php';
-include 'header.php'; // Ensure this file exists and doesn't output bad HTML
+<?php
+// Just include the fixer file. It handles everything.
+include 'api/auth_session.php'; 
+// OR include 'auth_session.php'; depending on where the file is located relative to this one.
 
-// 4. FETCH USER DATA
+include 'db_config.php';
+// Remove include 'header.php'; if it causes layout issues, otherwise keep it.
+
+// ... Rest of your code (fetching user data) starts here ...
 $stmt = $conn->prepare("SELECT username, email, balance, role FROM users WHERE id = ?");
+// ...
+?>
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -388,6 +394,7 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
 
