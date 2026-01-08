@@ -6,11 +6,20 @@
     }
   },
   "routes": [
-    { "src": "/(css|js|images)/(.*)", "dest": "/api/$1/$2" },
     { "src": "/", "dest": "/api/login.php" },
     { "src": "/login", "dest": "/api/login.php" },
     { "src": "/dashboard", "dest": "/api/dashboard.php" },
-    { "src": "/receive_sms", "dest": "/api/receive_sms.php" },
+    { "src": "/logout", "dest": "/api/logout.php" },
+    { "src": "/settings", "dest": "/api/settings.php" },
+    { "src": "/signup", "dest": "/api/signup.php" },
+    { "src": "/fund_wallet", "dest": "/api/fund_wallet.php" },
+    { "src": "/all_services", "dest": "/api/all_services.php" },
+    { "src": "/social_order", "dest": "/api/social_order.php" },
+    { "src": "/inbox", "dest": "/api/inbox.php" },
+    { "src": "/messages", "dest": "/api/messages.php" },
+    { "src": "/admin/dashboard", "dest": "/api/admin_dashboard.php" },
+    { "src": "/admin/broadcast", "dest": "/api/admin_broadcast.php" },
+    { "src": "/admin/transactions", "dest": "/api/admin_transactions.php" },
     { "src": "/(.*)", "dest": "/api/$1.php" }
   ]
 }
