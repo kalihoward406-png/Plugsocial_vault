@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'auth_session.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 1. Collect and Sanitize Inputs
@@ -37,4 +38,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: signup.php");
         exit();
     }
+
 }
