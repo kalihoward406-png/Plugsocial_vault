@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'auth_session.php';
 $email = $_SESSION['user'];
 
 $messages = mysqli_query($conn, "SELECT * FROM incoming_sms WHERE user_email = '$email' ORDER BY received_at DESC");
@@ -49,4 +50,5 @@ refreshInbox();
 
 // 2. Refresh every 5 seconds (5000 milliseconds)
 setInterval(refreshInbox, 5000);
+
 </script>
