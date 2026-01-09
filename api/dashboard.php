@@ -1,9 +1,22 @@
 <?php
-// 1. SETUP SESSION & ERROR REPORTING
+// 1. SETUP SESSION
 ini_set('display_errors', 1);
 ini_set('session.save_path', '/tmp');
 session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
 session_start();
+
+// 2. INCLUDE FILES CORRECTLY
+// __DIR__ means "directory of this file". No more "api/" prefix!
+include_once __DIR__ . '/auth_session.php';
+
+// Fix db_config path:
+// If db_config is in 'api' folder:
+include_once __DIR__ . '/db_config.php';
+// OR If db_config is in ROOT folder:
+// include_once __DIR__ . '/../db_config.php';
+
+// 3. CHECK LOGIN
+// ... rest of your code ...
 
 // 2. CHECK LOGIN (SESSION OR COOKIE BACKUP)
 $user_id = null;
@@ -16,13 +29,6 @@ if (isset($_SESSION['user_id'])) {
 elseif (isset($_COOKIE['auth_user_id'])) {
     $user_id = $_COOKIE['auth_user_id'];
     $_SESSION['user_id'] = $user_id; // Restore session
-}
-
-// 3. IF NO USER FOUND, REDIRECT TO LOGIN
-if (!$user_id) {
-    // Javascript redirect is safer on Vercel than header()
-    echo "<script>window.location.href='/login';</script>";
-    exit();
 }
 
 // Use __DIR__ to tell PHP "Look in this current folder"
@@ -387,6 +393,7 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
 
