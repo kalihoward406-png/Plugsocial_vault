@@ -23,7 +23,7 @@ if (isset($_SESSION['user_id']) || isset($_COOKIE['auth_user_id'])) {
 
 // 3. INCLUDE DB CONFIG
 // Use __DIR__ to find the file in the same folder
-require_once __DIR__ . '/db_config.php';
+include_once __DIR__ . '/auth_session.php';
 
 $error = "";
 
@@ -233,3 +233,4 @@ if (isset($_POST['login_btn'])) {
 
 </body>
 </html>
+
