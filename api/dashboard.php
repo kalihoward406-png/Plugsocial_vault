@@ -1,39 +1,13 @@
 <?php
-// 1. SETUP SESSION
+// 1. Setup Error Reporting
 ini_set('display_errors', 1);
-ini_set('session.save_path', '/tmp');
-session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
-session_start();
 
-// 2. INCLUDE FILES CORRECTLY
-// __DIR__ means "directory of this file". No more "api/" prefix!
-include_once __DIR__ . '/auth_session.php';
-
-// Fix db_config path:
-// If db_config is in 'api' folder:
+// 2. Simply include the auth handler (which handles the session)
+include_once __DIR__ . '/auth_session.php'; 
 include_once __DIR__ . '/db_config.php';
-// OR If db_config is in ROOT folder:
-// include_once __DIR__ . '/../db_config.php';
 
-// 3. CHECK LOGIN
+// At this point, $user_id is already set by auth_session.php
 // ... rest of your code ...
-
-// 2. CHECK LOGIN (SESSION OR COOKIE BACKUP)
-$user_id = null;
-
-// Check standard session
-if (isset($_SESSION['user_id'])) {
-    $user_id = $_SESSION['user_id'];
-} 
-// Check backup cookie (Fix for Vercel dropping sessions)
-elseif (isset($_COOKIE['auth_user_id'])) {
-    $user_id = $_COOKIE['auth_user_id'];
-    $_SESSION['user_id'] = $user_id; // Restore session
-}
-
-// Use __DIR__ to tell PHP "Look in this current folder"
-include 'auth_session.php'; 
-include 'db_config.php';
 // ... Rest of your code (fetching user data) starts here ...
 $stmt = $conn->prepare("SELECT username, email, balance, role FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
@@ -393,6 +367,7 @@ function copyReferralLink() {
 
 </body>
 </html>
+
 
 
 
