@@ -1,10 +1,9 @@
 <?php
 // api/auth_session.php
 
-// 1. Force Session Settings for Vercel
-ini_set('session.save_path', '/tmp');
+// 1. Only set ini settings if the session hasn't started yet
 if (session_status() === PHP_SESSION_NONE) { 
-    // Set cookie params BEFORE starting session
+    ini_set('session.save_path', '/tmp');
     session_set_cookie_params([
         'path' => '/',
         'secure' => true, 
@@ -16,19 +15,17 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $user_id = null;
 
-// 2. PRIMARY CHECK: Is the session active?
+// 2. Check session or restore from cookie
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 } 
-// 3. BACKUP CHECK: Session died? Restore it from the Cookie!
 elseif (isset($_COOKIE['auth_user_id'])) {
     $user_id = $_COOKIE['auth_user_id'];
-    $_SESSION['user_id'] = $user_id; // Resurrect the session
+    $_SESSION['user_id'] = $user_id; 
 }
 
-// 4. FINAL VERDICT: If both failed, kick them out.
+// 3. Final Verdict
 if (!$user_id) {
-    // We use JS redirect because header() often fails on Vercel if HTML is already loading
     echo "<script>window.location.href='/login';</script>";
     exit();
 }
