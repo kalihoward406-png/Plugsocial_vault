@@ -2,14 +2,23 @@
 // 1. SETTINGS
 ini_set('display_errors', 1);
 ini_set('session.save_path', '/tmp');
-session_set_cookie_params(['path' => '/', 'samesite' => 'Lax']);
+// Set cookie params identical to auth_session.php
+session_set_cookie_params([
+    'path' => '/',
+    'secure' => true, 
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 session_start();
 
-include 'auth_session.php'; // <--- THIS ONE LINE FIXES THE LOGIN ISSUE
-include 'db_config.php';
-include 'header.php';
+// DO NOT INCLUDE auth_session.php HERE. IT CAUSES A LOOP.
+
+// Use the "Go Up" path to find config if it's in the root
+include __DIR__ . '/../db_config.php'; 
+// OR if you moved db_config.php to api folder: include __DIR__ . '/db_config.php';
 
 $error = "";
+// ... rest of your login code ...
 
 if (isset($_POST['login_btn'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
@@ -168,6 +177,7 @@ exit();
 
 </body>
 </html>
+
 
 
 
