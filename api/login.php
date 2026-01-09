@@ -11,11 +11,8 @@ session_set_cookie_params([
 ]);
 session_start();
 
-// DO NOT INCLUDE auth_session.php HERE. IT CAUSES A LOOP.
-
-// Use the "Go Up" path to find config if it's in the root
-include __DIR__ . '/../db_config.php'; 
-// OR if you moved db_config.php to api folder: include __DIR__ . '/db_config.php';
+include_once __DIR__ . '/auth_session.php';
+include_once __DIR__ . '/db_config.php';
 
 $error = "";
 // ... rest of your login code ...
@@ -177,6 +174,7 @@ exit();
 
 </body>
 </html>
+
 
 
 
